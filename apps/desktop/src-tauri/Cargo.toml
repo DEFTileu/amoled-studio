@@ -1,0 +1,20 @@
+[package]
+name = "amoled-studio"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+
+[lib]
+name = "amoled_studio_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
+tauri-plugin-fs = "2"
+amoled-runtime = { path = "../../../runtime", features = ["tauri-commands"] }
+# Same version and features as amoled-runtime, for the frame relay.
+tungstenite = { version = "0.28", default-features = false, features = ["handshake"] }

@@ -1,0 +1,60 @@
+/* Tokens and base components are lifted unchanged from design/AMOLED Studio.dc.html. */
+:root{--bg:#f2f2f3;--panel:#f7f7f8;--surface:#e9e9ea;--text:#1d1f20;--muted:#5d5d60;--line:rgba(29,31,32,.14);--hover:rgba(29,31,32,.06);--active:rgba(29,31,32,.12);--accent:#4a6f94;--accent-hi:#416180;--on-accent:#fff;--accent-soft:rgba(89,128,166,.18);--ok:oklch(.58 .12 150);--warn:oklch(.62 .12 75);--err:oklch(.55 .15 25);--mono:ui-monospace,SFMono-Regular,Menlo,monospace;--head:"Barlow Condensed",system-ui,sans-serif;color-scheme:light}
+[data-theme=dark]{--bg:#0f1011;--panel:#151617;--surface:#1c1d1f;--text:#e8e9ea;--muted:#9a9ca0;--line:rgba(255,255,255,.1);--hover:rgba(255,255,255,.06);--active:rgba(255,255,255,.12);--accent:#7fa1c6;--accent-hi:#94b4d6;--on-accent:#0f1011;--accent-soft:rgba(127,161,198,.2);--ok:oklch(.75 .12 150);--warn:oklch(.8 .12 75);--err:oklch(.72 .15 25);color-scheme:dark}
+html,body,#root{margin:0;height:100%;background:var(--bg);color:var(--text);font:13px/1.4 Barlow,system-ui,sans-serif;overflow:hidden;-webkit-user-select:none;user-select:none}
+*{box-sizing:border-box}button{font:inherit;color:inherit}
+a{color:var(--accent)}a:hover{color:var(--accent-hi)}
+.btn{height:28px;padding:0 10px;border:1px solid var(--line);background:transparent;display:inline-flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;border-radius:4px;white-space:nowrap}
+.btn:hover{background:var(--hover)}.btn:active{background:var(--active)}
+.btn:disabled{opacity:.45;cursor:default;pointer-events:none}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn.pri:hover{background:var(--accent-hi)}
+.ib{width:28px;padding:0;border-color:transparent}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:4px;padding:2px;gap:2px}
+.seg button{border:0;background:transparent;height:22px;padding:0 9px;cursor:pointer;border-radius:2px;color:var(--muted)}
+.seg button:hover{color:var(--text)}
+.seg button[aria-pressed=true]{background:var(--accent);color:var(--on-accent)}
+.seg button:disabled{opacity:.45;cursor:default;pointer-events:none}
+.nav{display:flex;align-items:center;gap:10px;height:30px;padding:0 10px;border:0;background:transparent;width:100%;text-align:left;cursor:pointer;border-radius:4px;color:var(--muted);white-space:nowrap;overflow:hidden}
+.nav:hover{background:var(--hover);color:var(--text)}
+.nav[aria-current=true]{background:var(--accent-soft);color:var(--text)}
+.inp{height:26px;border:1px solid var(--line);background:var(--bg);color:var(--text);border-radius:4px;padding:0 6px;font:12px var(--mono);min-width:0;width:100%;-webkit-user-select:text;user-select:text}
+.inp:disabled{opacity:.45}
+select.inp{font-family:Barlow,system-ui,sans-serif;font-size:13px}
+input[type=range]{width:100%;accent-color:var(--accent);margin:0}
+input[type=checkbox]{accent-color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+@keyframes spin{to{transform:rotate(360deg)}}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--line);border:2px solid transparent;background-clip:padding-box;border-radius:6px}
+
+/* layout (design's inline styles, as classes) */
+.app{display:grid;grid-template-rows:44px minmax(0,1fr);height:100vh;min-width:900px}
+.top{display:flex;align-items:center;gap:8px;padding:0 10px;border-bottom:1px solid var(--line);background:var(--panel);min-width:0}
+.brand{font:600 18px var(--head);letter-spacing:-.01em;white-space:nowrap}
+.vsep{width:1px;height:18px;background:var(--line)}
+.board{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:0 1 auto}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:0 8px;height:24px;border:1px solid var(--line);border-radius:12px;white-space:nowrap}
+.dot{width:8px;height:8px;border-radius:50%}
+.body{display:flex;min-height:0}
+.side{flex:none;border-right:1px solid var(--line);background:var(--panel);padding:8px 6px;display:flex;flex-direction:column;gap:2px;overflow:hidden}
+.lbl{font:600 11px var(--head);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.side .lbl{padding:12px 10px 4px}
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.preview{flex:1;min-height:0;position:relative;container-type:size;background:var(--bg)}
+.caption{position:absolute;left:0;right:0;text-align:center;font:11.5px var(--mono);color:var(--muted);pointer-events:none}
+.console{flex:none;border-top:1px solid var(--line);background:var(--panel);display:flex;flex-direction:column;position:relative}
+.console-bar{height:30px;flex:none;display:flex;align-items:center;gap:8px;padding:0 8px 0 4px}
+.console-title{font:600 13px var(--head);letter-spacing:.08em;text-transform:uppercase}
+.log-list{flex:1;min-height:0;overflow:auto;border-top:1px solid var(--line);font:12px/1.55 var(--mono);padding:4px 0;-webkit-user-select:text;user-select:text}
+.log-row{display:grid;grid-template-columns:96px 52px 78px 1fr;gap:8px;padding:0 12px}
+.insp{width:272px;flex:none;border-left:1px solid var(--line);background:var(--panel);overflow:auto}
+.sec{padding:10px 14px;border-top:1px solid var(--line);display:grid;gap:8px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;font:12px var(--mono)}
+.muted{color:var(--muted)}
+.row2{display:flex;justify-content:space-between}
+.mono12{font:12px var(--mono)}
+.badge{font:11px var(--mono);color:var(--warn);border:1px solid var(--warn);border-radius:3px;padding:0 5px}
+.overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#c9ccd1;text-align:center}
+.backdrop{position:fixed;inset:0;background:rgba(0,0,0,.4);display:grid;place-items:center;z-index:50}
+.dialog{width:min(640px,92vw);max-height:84vh;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:6px;box-shadow:0 16px 48px rgba(0,0,0,.35);padding:18px 20px;display:grid;gap:14px}
+.dialog pre{margin:0;padding:12px;border:1px solid var(--line);background:var(--bg);font:11.5px/1.5 var(--mono);overflow:auto;white-space:pre;-webkit-user-select:text;user-select:text}

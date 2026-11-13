@@ -1,0 +1,12 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "bundle": {
+    "resources": {
+      "../../../.tools/esp32sim/target/release/esp32sim": "studio-root/.tools/esp32sim/target/release/esp32sim",
+      "../../../firmware/esp-idf/build/bootloader/bootloader.bin": "studio-root/firmware/esp-idf/build/bootloader/bootloader.bin",
+      "../../../firmware/esp-idf/build/partition_table/partition-table.bin": "studio-root/firmware/esp-idf/build/partition_table/partition-table.bin",
+      "../../../firmware/esp-idf/build/amoled_studio_175c.bin": "studio-root/firmware/esp-idf/build/amoled_studio_175c.bin",
+      "../../../firmware/esp-idf/build/amoled_studio_175c.elf": "studio-root/firmware/esp-idf/build/amoled_studio_175c.elf"
+    }
+  }
+}

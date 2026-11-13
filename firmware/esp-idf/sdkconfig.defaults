@@ -1,0 +1,7 @@
+# 1.75C ESP32-S3R8 PSRAM; flash size and partition layout intentionally unresolved.
+CONFIG_SPIRAM=y
+CONFIG_SPIRAM_MODE_OCT=y
+
+# Enable LVGL 9 gesture support for the emulated touch adapter.
+CONFIG_LV_USE_FLOAT=y
+CONFIG_LV_USE_GESTURE_RECOGNITION=y
