@@ -1,35 +1,35 @@
 # AMOLED Studio
 
-AMOLED Studio is an experimental local development environment for the **Waveshare ESP32-S3-Touch-AMOLED-1.75C**. It combines a portable LVGL simulator, an ESP32-S3 firmware emulator, a Rust runtime and one React frontend for macOS desktop and browser use. No physical board or cloud service is required.
+**A local simulator and firmware emulator for the Waveshare ESP32-S3-Touch-AMOLED-1.75C.**
 
-The firmware emulator executes a real ESP-IDF binary in a patched, pinned version of [esp32sim](https://github.com/mikroverk/esp32sim). The diagnostic firmware renders LVGL through the simulated CO5300 display controller and receives touch through the CST9217 model. Hardware behavior is simulated and has not been validated against a physical board.
+Build and test an LVGL application in a browser or macOS desktop app, without connecting a board. Run the host-native LVGL simulator for quick iteration, or boot a real ESP32-S3 firmware binary with simulated display and touch peripherals.
 
-## Features
+> **Project status:** experimental. Only the **1.75C** board is targeted. Peripheral models are incomplete and have not been validated against physical hardware. The diagnostic firmware uses an unverified flash layout: **do not flash it to a device**.
 
-- **Firmware Emulator:** ESP32-S3 execution, round 466 × 466 framebuffer, snapshots and simulated touch/gestures; configurable 16 MB or 32 MB virtual flash and 8 MB virtual PSRAM.
-- **LVGL Simulator:** native SDL window using the same portable diagnostic application and configurable hardware mocks.
-- **Desktop Studio:** Tauri 2 shell with an in-process Rust runtime; the macOS bundle includes the runtime assets.
-- **Browser Studio:** the same frontend served with an authenticated loopback HTTP/WebSocket API by the Rust runtime. Supports selecting and uploading firmware image bundles.
-- **Local API:** versioned lifecycle, configuration, firmware upload, logs, frames and touch APIs. See [API v1](runtime/HTTP_API.md).
+## Quick start
 
-The two engines are separate: the LVGL simulator renders on the host, while firmware frames originate from emulated firmware display writes. Neither mode flashes hardware.
+The steps below build and start the browser version on macOS. The first build downloads dependencies; later runs use the local build. No hardware or cloud backend is required.
 
-## Requirements
+### 1. Install prerequisites
 
-The documented development and packaging path targets macOS. You will need:
-
-- Xcode command-line tools, Git, CMake, pkg-config, Python 3, Rust/Cargo and Node.js/npm.
-- Homebrew SDL dependencies: `brew install cmake pkg-config sdl2-compat sdl3`.
-- [Espressif ESP-IDF](https://docs.espressif.com/projects/esp-idf/en/stable/esp32s3/get-started/index.html) with the ESP32-S3 toolchain; the existing diagnostic firmware has been built with ESP-IDF 6.1.
-- The ESP32-S3 ROM ELF installed by ESP-IDF or supplied via `ESP32SIM_ROM_DIR`. See [firmware emulator setup](docs/firmware-emulator.md).
-- Internet access for the initial dependency downloads. Running a prepared build does not require a cloud backend.
-
-## Build from source
-
-From the project root, activate your ESP-IDF installation and build the engines:
+Install Xcode command-line tools, [Homebrew](https://brew.sh/), [Rust](https://www.rust-lang.org/tools/install), Node.js/npm, Python 3 and the [ESP-IDF toolchain](https://docs.espressif.com/projects/esp-idf/en/stable/esp32s3/get-started/index.html) for ESP32-S3. The diagnostic firmware has been built with ESP-IDF 6.1.
 
 ```sh
-source "$HOME/esp/esp-idf/export.sh"  # adjust to your installation
+xcode-select --install
+brew install cmake pkg-config sdl2-compat sdl3
+```
+
+The emulator also needs the ESP32-S3 ROM ELF. The ESP-IDF tools normally install it under `~/.espressif/tools/esp-rom-elfs/`; see [ROM setup](docs/firmware-emulator.md#prerequisites) for alternatives.
+
+### 2. Clone and build
+
+```sh
+git clone https://github.com/DEFTileu/amoled-studio.git
+cd amoled-studio
+
+# Adjust this path to your ESP-IDF installation.
+source "$HOME/esp/esp-idf/export.sh"
+
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug -DSTUDIO_ENABLE_EMULATOR_TESTS=ON
 cmake --build build --parallel
 ./tools/setup-esp32sim.sh
@@ -39,54 +39,96 @@ npm --prefix apps/desktop run build
 cargo build --locked --manifest-path runtime/Cargo.toml --bin amoled-studio
 ```
 
-The setup script downloads the pinned emulator source, applies the local board model and builds the emulator. ESP-IDF downloads the BSP components specified in the project. Build products and downloaded dependencies remain local and are excluded from Git.
+The setup script downloads the pinned [esp32sim](https://github.com/mikroverk/esp32sim) revision, applies the 1.75C board model, and builds it. ESP-IDF fetches the required BSP components. Build artifacts stay on your machine.
 
-### Browser
+### 3. Launch
 
 ```sh
 ./runtime/target/debug/amoled-studio serve --open
 ```
 
-The launcher starts the backend and frontend on one local origin and opens an authorized browser tab. Close the server with Ctrl-C. Open the tab created by the launcher: a separately opened tab does not automatically receive its session. See [launch and session details](docs/launch.md).
+The launcher starts the Rust backend, serves the frontend on `127.0.0.1`, and opens an authenticated browser tab. In Studio:
 
-### macOS app
+1. Select **Firmware Emulator** and press **Start**.
+2. Wait for **Running**, then click **Switch screen** on the device preview or try a swipe.
+3. Press **Stop** when finished. Press **Ctrl-C** in the launcher terminal to shut down the backend.
 
-After building the prerequisites above:
+Use the tab opened by the launcher: opening the same address in a new tab does not transfer its session. If the tab was closed, launch Studio again. See [launching and session security](docs/launch.md).
+
+## Desktop app
+
+After completing the build above, package the macOS application:
 
 ```sh
 ./tools/package-macos.sh
+open 'apps/desktop/src-tauri/target/release/bundle/macos/AMOLED Studio.app'
 ```
 
-The app is produced at `apps/desktop/src-tauri/target/release/bundle/macos/AMOLED Studio.app`. The script packages SDL, esp32sim, the ROM and firmware assets and checks the relocated simulator. The resulting app is locally ad-hoc signed; it is **not notarized** for public distribution.
+The bundle includes the emulator, firmware, ROM, SDL simulator and required libraries. The script checks that the packaged simulator loads its own SDL libraries. The build is **ad-hoc signed, not notarized**, and has not been verified on a clean Mac. See [packaging notes](docs/launch.md).
+
+## Choose an engine
+
+| | Firmware Emulator | LVGL Simulator |
+| --- | --- | --- |
+| Runs | Real ESP32-S3 firmware in esp32sim | Portable LVGL app on the host |
+| Display | Firmware writes through the emulated CO5300 | Native SDL window |
+| Input | Simulated CST9217 touch, including taps and swipes | Mouse input in the SDL window |
+| Configuration | Virtual 16/32 MB flash, 8 MB PSRAM; firmware upload | Configurable hardware mocks |
+
+Both use the same portable diagnostic app. Firmware frames come from the emulated controller; the simulator is a separate host-native engine.
 
 ## Tests
 
+With the firmware and emulator built:
+
 ```sh
+# Simulator, firmware boot, display and swipe tests
 ctest --test-dir build --output-on-failure
+
+# Runtime, HTTP/WebSocket API and real-emulator integration
 STUDIO_RUNTIME_E2E=1 cargo test --locked --manifest-path runtime/Cargo.toml -- --test-threads=1
+
+# Frontend unit tests and browser adapter integration
 npm --prefix apps/desktop test
 npm --prefix apps/desktop run test:integration
 ```
 
-Firmware end-to-end tests need the built ESP-IDF images, ROM and patched esp32sim. The browser integration suite uses the local backend; see [desktop development notes](apps/desktop/README.md). Running timing-sensitive firmware tests alongside heavy builds can cause intermittent gesture-test failures.
+The firmware integration tests need the built images, ROM and patched esp32sim. Heavy concurrent builds can affect timing-sensitive gesture tests.
 
-## Project layout
+## Architecture
 
-| Path | Contents |
+```text
+React frontend
+  ├── Browser ── HTTP / WebSocket ──┐
+  └── Tauri desktop ── IPC ─────────┤
+                                    ▼
+                          Rust runtime supervisor
+                            ├── LVGL + SDL simulator
+                            └── esp32sim + 1.75C board model
+```
+
+The local API handles runtime lifecycle, firmware uploads, logs, frames and touch. It binds to loopback and uses token authentication and Origin validation. It does not provide arbitrary process execution or unrestricted filesystem access. It is not a security boundary against another process running as the same OS user. See the [HTTP/WebSocket API contract](runtime/HTTP_API.md).
+
+## Known limitations
+
+- Only the **ESP32-S3-Touch-AMOLED-1.75C** is supported. The 16/32 MB flash settings are virtual options; actual board capacity and RTC availability remain unconfirmed.
+- CO5300 and CST9217 behavior covers the tested diagnostic firmware. PMIC, IMU, audio, RTC and timing are incomplete or unvalidated; this is not full board emulation.
+- The simulator opens a separate SDL window. Browser frame capture and touch apply to firmware mode.
+- A packaged app still needs clean-machine testing, a distribution signing identity and notarization before public distribution.
+
+See [hardware notes](docs/technical-notes.md), [firmware emulation](docs/firmware-emulator.md), [launch guide](docs/launch.md), and [frontend integration](apps/desktop/README.md).
+
+## Project structure
+
+| Path | Purpose |
 | --- | --- |
-| `runtime/` | Shared Rust supervisor, authenticated local API and Tauri command adapter |
-| `apps/desktop/` | Shared React frontend and optional Tauri shell |
-| `src/` | Portable LVGL app, board profile, HAL and SDL simulator |
-| `firmware/esp-idf/` | Diagnostic firmware using ESP-IDF and the Waveshare BSP |
-| `emulation/esp32sim/` | 1.75C board model and emulator transport patch |
-| `tests/` | Simulator and firmware integration tests |
-
-## Scope and limitations
-
-Only the 1.75C board is targeted. Display and touch models support the tested diagnostic firmware, not full hardware or BSP compatibility. PMIC, IMU, audio, RTC, timing and other peripherals are incomplete or unvalidated. Real-board flash capacity and RTC availability remain uncertain; virtual flash choices are not a hardware claim. The sample firmware uses an unverified flash layout and **must not be flashed**. See [technical notes](docs/technical-notes.md) and [emulation feasibility](docs/emulation-feasibility.md).
-
-The local API binds to loopback and uses authentication and Origin checks. It is not a security boundary against another process running as the same OS user. See [API security and lifecycle](runtime/HTTP_API.md).
+| `apps/desktop/` | Shared React frontend and Tauri shell |
+| `runtime/` | Rust supervisor, local API and Tauri commands |
+| `src/` | Portable LVGL app, HAL, board profile and SDL simulator |
+| `firmware/esp-idf/` | Diagnostic ESP-IDF firmware |
+| `emulation/esp32sim/` | 1.75C emulator model and transport patch |
+| `tests/` | Simulator and firmware tests |
 
 ## License
 
-Project code is licensed under [Apache License 2.0](LICENSE). LVGL, SDL, esp32sim, Espressif ROM files and BSP components have their own licenses; review their notices when redistributing a packaged app.
+Project code is licensed under [Apache License 2.0](LICENSE). LVGL, SDL, esp32sim, Espressif ROM files and BSP components have their own licenses; review their notices before redistributing a packaged app.
