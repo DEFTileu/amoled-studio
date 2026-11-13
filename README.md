@@ -6,7 +6,23 @@ Build and test an LVGL application in a browser or macOS desktop app, without co
 
 > **Project status:** experimental. Only the **1.75C** board is targeted. Peripheral models are incomplete and have not been validated against physical hardware. The diagnostic firmware uses an unverified flash layout: **do not flash it to a device**.
 
-## Quick start
+## One-command setup (macOS)
+
+The repository is currently **private**, so first install and sign in to [GitHub CLI](https://cli.github.com/) as an account with access (`gh auth login`). Then paste this one command into Terminal:
+
+```sh
+gh api -H 'Accept: application/vnd.github.raw+json' repos/DEFTileu/amoled-studio/contents/tools/install-macos.sh | bash
+```
+
+The installer clones the project into `~/AMOLED-Studio`, installs build dependencies with Homebrew, sets up ESP-IDF 6.1 in `~/AMOLED-Studio-toolchains`, builds the engines and frontend, and opens Studio in the browser. The first run downloads several large dependencies and may take a long time. Keep the terminal open while using Studio; stop it with **Ctrl-C**. To run it again:
+
+```sh
+cd ~/AMOLED-Studio && ./runtime/target/debug/amoled-studio serve --open
+```
+
+Apple Command Line Tools and Homebrew must already be installed. If they are missing, the installer tells you what to do. An existing checkout is reused without updating or overwriting it. Set `AMOLED_INSTALL_DIR` or `AMOLED_IDF_DIR` to choose different directories. This builds from source; there is no prebuilt downloadable installer yet.
+
+## Manual quick start
 
 The steps below build and start the browser version on macOS. The first build downloads dependencies; later runs use the local build. No hardware or cloud backend is required.
 
