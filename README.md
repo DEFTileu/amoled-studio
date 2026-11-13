@@ -8,10 +8,10 @@ Build and test an LVGL application in a browser or macOS desktop app, without co
 
 ## One-command setup (macOS)
 
-The repository is currently **private**, so first install and sign in to [GitHub CLI](https://cli.github.com/) as an account with access (`gh auth login`). Then paste this one command into Terminal:
+Paste this command into Terminal:
 
 ```sh
-gh api -H 'Accept: application/vnd.github.raw+json' repos/DEFTileu/amoled-studio/contents/tools/install-macos.sh | bash
+curl -fsSL https://raw.githubusercontent.com/DEFTileu/amoled-studio/main/tools/install-macos.sh | bash
 ```
 
 The installer clones the project into `~/AMOLED-Studio`, installs build dependencies with Homebrew, sets up ESP-IDF 6.1 in `~/AMOLED-Studio-toolchains`, builds the engines and frontend, and opens Studio in the browser. The first run downloads several large dependencies and may take a long time. Keep the terminal open while using Studio; stop it with **Ctrl-C**. To run it again:

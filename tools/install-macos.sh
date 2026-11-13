@@ -25,7 +25,7 @@ if [ -d "$install_dir/.git" ]; then
   esac
   echo "Using existing checkout without updating it: $install_dir"
 else
-  git -c credential.helper= -c 'credential.helper=!gh auth git-credential' clone "https://github.com/$repo.git" "$install_dir"
+  git clone "https://github.com/$repo.git" "$install_dir"
 fi
 
 brew install cmake pkg-config sdl2-compat sdl3 rust node python ninja
